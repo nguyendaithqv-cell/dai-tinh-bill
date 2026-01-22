@@ -162,144 +162,110 @@ const App: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen max-w-md mx-auto bg-slate-950 shadow-2xl overflow-hidden relative border-x border-slate-800">
-      <header className="p-4 bg-slate-900 border-b border-slate-800 flex justify-between items-center shrink-0 shadow-md z-10">
+      <header className="px-4 py-3 bg-slate-900 border-b border-slate-800 flex justify-between items-center shrink-0 shadow-md z-10">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
-            <i className="fa-solid fa-calculator text-slate-900"></i>
+          <div className="w-7 h-7 bg-amber-500 rounded flex items-center justify-center">
+            <i className="fa-solid fa-calculator text-slate-900 text-sm"></i>
           </div>
-          <h1 className="text-xl font-black text-white tracking-tighter uppercase">Đại tính <span className="text-amber-500">bill</span></h1>
+          <h1 className="text-lg font-black text-white tracking-tighter uppercase leading-none">Đại tính <span className="text-amber-500">bill</span></h1>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-1.5">
           <button 
             onClick={() => fileInputRef.current?.click()}
-            className="p-2.5 bg-slate-800 rounded-xl text-slate-300 active:bg-slate-700 transition-colors"
-            title="Quét hóa đơn"
+            className="p-2 bg-slate-800 rounded-lg text-slate-300 active:bg-slate-700 transition-colors"
           >
-            <i className="fa-solid fa-camera"></i>
+            <i className="fa-solid fa-camera text-sm"></i>
           </button>
           <button 
             onClick={resetAll}
-            className="p-2.5 bg-rose-900/30 text-rose-400 rounded-xl active:bg-rose-900/50 transition-colors"
-            title="Làm mới"
+            className="p-2 bg-rose-900/30 text-rose-400 rounded-lg active:bg-rose-900/50 transition-colors"
           >
-            <i className="fa-solid fa-trash-can"></i>
+            <i className="fa-solid fa-trash-can text-sm"></i>
           </button>
         </div>
-        <input 
-          type="file" 
-          ref={fileInputRef} 
-          onChange={handleFileUpload} 
-          accept="image/*" 
-          className="hidden" 
-        />
+        <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="image/*" className="hidden" />
       </header>
 
-      <main className="flex-1 overflow-y-auto p-4 hide-scrollbar space-y-3 bg-slate-950">
+      <main className="flex-1 overflow-y-auto p-3 hide-scrollbar space-y-2 bg-slate-950">
         {items.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-slate-700 space-y-4">
-            <div className="w-20 h-20 rounded-full bg-slate-900 flex items-center justify-center border border-slate-800">
-              <i className="fa-solid fa-receipt text-3xl"></i>
+            <div className="w-16 h-16 rounded-full bg-slate-900 flex items-center justify-center border border-slate-800">
+              <i className="fa-solid fa-receipt text-2xl opacity-30"></i>
             </div>
-            <p className="text-sm font-bold uppercase tracking-widest opacity-40 text-center px-8">Danh sách trống.<br/>Anh chụp bill hoặc nhập tay nhé!</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-30 text-center px-8">Danh sách trống</p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-2 pb-4">
             {items.map((item, idx) => (
               <div 
                 key={item.id} 
-                className={`group flex justify-between items-center p-3 rounded-2xl border transition-all duration-200 active:scale-[0.98] ${
+                className={`flex justify-between items-center p-3.5 rounded-xl border transition-all active:scale-[0.97] ${
                   item.amount < 0 
-                  ? 'bg-rose-900/10 border-rose-900/30' 
-                  : 'bg-slate-900/50 border-slate-800/50'
-                } animate-in fade-in slide-in-from-right-4`}
+                  ? 'bg-rose-950/20 border-rose-900/40' 
+                  : 'bg-slate-900/60 border-slate-800/80'
+                } animate-in fade-in slide-in-from-right-2`}
               >
-                <div 
-                  className="flex-1 flex flex-col cursor-pointer"
-                  onClick={() => startEdit(item)}
-                >
-                  <span className={`text-[10px] font-bold uppercase tracking-wider ${item.amount < 0 ? 'text-rose-400' : 'text-slate-500'}`}>
-                    #{idx + 1} {item.label} <i className="fa-solid fa-pencil ml-1 opacity-50"></i>
-                  </span>
-                  <span className={`text-lg font-black tabular-nums ${item.amount < 0 ? 'text-rose-400' : 'text-slate-100'}`}>
+                <div className="flex-1 min-w-0 pr-3 cursor-pointer" onClick={() => startEdit(item)}>
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <span className={`text-[11px] font-extrabold uppercase tracking-wide truncate ${item.amount < 0 ? 'text-rose-400' : 'text-amber-500/80'}`}>
+                      {item.label}
+                    </span>
+                    <i className="fa-solid fa-pencil text-[8px] text-slate-600"></i>
+                  </div>
+                  <div className={`text-xl font-black tabular-nums leading-none ${item.amount < 0 ? 'text-rose-400' : 'text-slate-100'}`}>
                     {formatCurrency(item.amount)}
-                  </span>
+                  </div>
                 </div>
                 <button 
                   onClick={() => removeItem(item.id)}
-                  className="w-10 h-10 flex items-center justify-center text-slate-600 hover:text-rose-500 active:scale-90 transition-transform"
+                  className="w-8 h-8 flex items-center justify-center text-slate-600 active:text-rose-500 transition-colors"
                 >
-                  <i className="fa-solid fa-xmark"></i>
+                  <i className="fa-solid fa-xmark text-lg"></i>
                 </button>
               </div>
             ))}
           </div>
         )}
-        <div ref={historyEndRef} className="h-4" />
+        <div ref={historyEndRef} className="h-2" />
       </main>
 
+      {/* Editing & Scanning Overlay Code remains same but styled for small screen */}
       {editingItem && (
-        <div className="absolute inset-0 bg-slate-950/80 z-[60] flex items-end justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full bg-slate-900 rounded-3xl p-6 border border-slate-800 shadow-2xl animate-in slide-in-from-bottom-10 duration-300">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-white font-bold text-lg uppercase tracking-wider">Sửa giá món</h3>
-              <button onClick={() => setEditingItem(null)} className="text-slate-500 hover:text-white">
-                <i className="fa-solid fa-circle-xmark text-2xl"></i>
-              </button>
+        <div className="absolute inset-0 bg-slate-950/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="w-full bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-2xl">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-white font-bold text-sm uppercase">Sửa giá món</h3>
+              <button onClick={() => setEditingItem(null)} className="text-slate-500"><i className="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            
-            <div className="mb-6">
-              <label className="text-xs font-bold text-slate-500 uppercase block mb-2">Giá mới (VND):</label>
-              <input 
-                type="number"
-                value={editValue}
-                onChange={(e) => setEditValue(e.target.value)}
-                autoFocus
-                className="w-full bg-slate-950 border border-slate-700 rounded-2xl p-4 text-3xl font-black text-amber-500 text-center focus:outline-none focus:border-amber-500 transition-colors"
-                placeholder="0"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <button 
-                onClick={() => setEditingItem(null)}
-                className="py-4 bg-slate-800 text-slate-300 rounded-2xl font-bold uppercase active:scale-95 transition-transform"
-              >
-                Hủy
-              </button>
-              <button 
-                onClick={saveEdit}
-                className="py-4 bg-amber-500 text-slate-900 rounded-2xl font-bold uppercase active:scale-95 transition-transform"
-              >
-                Lưu lại
-              </button>
+            <input 
+              type="number" value={editValue} onChange={(e) => setEditValue(e.target.value)} autoFocus
+              className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-2xl font-black text-amber-500 text-center mb-4 focus:outline-none"
+            />
+            <div className="grid grid-cols-2 gap-3">
+              <button onClick={() => setEditingItem(null)} className="py-3 bg-slate-800 text-slate-300 rounded-xl text-sm font-bold uppercase">Hủy</button>
+              <button onClick={saveEdit} className="py-3 bg-amber-500 text-slate-900 rounded-xl text-sm font-bold uppercase">Lưu</button>
             </div>
           </div>
         </div>
       )}
 
       {isScanning && (
-        <div className="absolute inset-0 bg-slate-950/90 z-50 flex flex-col items-center justify-center space-y-4 backdrop-blur-md">
-          <div className="relative">
-             <div className="w-16 h-16 border-4 border-amber-500/20 rounded-full"></div>
-             <div className="absolute inset-0 w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
-          </div>
-          <div className="text-center">
-            <p className="text-amber-500 font-black tracking-widest text-lg text-glow">ĐANG QUÉT ẢNH...</p>
-            <p className="text-slate-500 text-xs">Vui lòng chờ Đại một xíu nhé...</p>
-          </div>
+        <div className="absolute inset-0 bg-slate-950/90 z-50 flex flex-col items-center justify-center space-y-3">
+          <div className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-amber-500 font-black tracking-widest text-sm uppercase">Đang quét bill...</p>
         </div>
       )}
 
-      <div className="bg-slate-900 px-6 py-4 border-t border-slate-800 shadow-[0_-10px_20px_rgba(0,0,0,0.3)]">
+      <div className="bg-slate-900 px-4 py-3 border-t border-slate-800 shadow-2xl shrink-0">
         <div className="flex justify-between items-center mb-2">
-           <div className="flex flex-col flex-1">
-              <span className="text-slate-500 font-bold text-[10px] uppercase tracking-widest">Đang nhập</span>
-              <div className="flex items-baseline gap-2">
-                <span className="text-xl font-bold text-slate-400 tabular-nums truncate max-w-[150px]">
+           <div className="min-w-0 flex-1">
+              <span className="text-slate-500 font-bold text-[9px] uppercase tracking-widest block mb-0.5">Đang nhập</span>
+              <div className="flex items-center gap-2">
+                <span className="text-lg font-bold text-slate-300 tabular-nums truncate">
                   {displayInput || '0'}
                 </span>
                 {currentInput.match(/[*/]/) && (
-                  <span className="text-sm font-bold text-amber-500/80">
+                  <span className="text-xs font-bold text-amber-500 shrink-0">
                     = {formatCurrency(previewValue)}
                   </span>
                 )}
@@ -307,27 +273,29 @@ const App: React.FC = () => {
            </div>
            <button 
             onClick={shareSummary}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-800 rounded-full text-amber-500 text-xs font-bold border border-amber-500/20 active:scale-95 transition-all shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 rounded-lg text-slate-900 text-[10px] font-black uppercase active:scale-95 transition-all shadow-lg"
            >
              <i className="fa-solid fa-share-nodes"></i>
-             GỬI BILL
+             Gửi Bill
            </button>
         </div>
         
-        <div className="flex justify-between items-center pt-3 border-t border-slate-800/50">
-          <span className="text-white font-black text-lg">TỔNG CỘNG:</span>
-          <span className="text-3xl font-black text-amber-500 tabular-nums drop-shadow-[0_0_8px_rgba(245,158,11,0.3)]">
+        <div className="flex justify-between items-baseline pt-2 border-t border-slate-800/50">
+          <span className="text-white font-extrabold text-sm uppercase">Tổng:</span>
+          <span className="text-2xl font-black text-amber-500 tabular-nums">
             {formatCurrency(total)}
           </span>
         </div>
       </div>
 
-      <NumberPad 
-        onInput={handleInput} 
-        onClear={handleClearInput} 
-        onDelete={handleDeleteInput} 
-        onConfirm={handleConfirmItem} 
-      />
+      <div className="shrink-0 bg-slate-900">
+        <NumberPad 
+          onInput={handleInput} 
+          onClear={handleClearInput} 
+          onDelete={handleDeleteInput} 
+          onConfirm={handleConfirmItem} 
+        />
+      </div>
     </div>
   );
 };
