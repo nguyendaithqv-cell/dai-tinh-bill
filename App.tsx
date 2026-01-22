@@ -32,15 +32,10 @@ const App: React.FC = () => {
     scrollToBottom();
   }, [items]);
 
-  // Evaluate simple expressions like "4*20000" safely
   const evaluateInput = (input: string): number => {
     try {
-      // Basic sanitization: only allow digits, ., *, /
       const cleanInput = input.replace(/[^0-9.*\/-]/g, '');
       if (!cleanInput) return 0;
-      
-      // Use Function instead of eval for slightly better control, though still careful
-      // For a simple pub calculator, we can also manually parse but this is efficient
       const result = new Function(`return ${cleanInput}`)();
       return typeof result === 'number' && isFinite(result) ? result : 0;
     } catch {
@@ -50,14 +45,9 @@ const App: React.FC = () => {
 
   const handleInput = (val: string) => {
     if (currentInput.length > 20) return;
-    
-    // Prevent starting with operators
     if (currentInput === '' && ['*', '/', '.'].includes(val)) return;
-    
-    // Prevent consecutive operators
     const lastChar = currentInput.slice(-1);
     if (['*', '/', '.'].includes(lastChar) && ['*', '/', '.'].includes(val)) return;
-
     setCurrentInput(prev => prev + val);
   };
 
@@ -134,22 +124,35 @@ const App: React.FC = () => {
     try {
       const reader = new FileReader();
       reader.onload = async (event) => {
-        const base64 = event.target?.result as string;
-        const results = await parseReceiptWithAI(base64);
-        
-        const newItems: BillItem[] = results.map(r => ({
-          id: crypto.randomUUID(),
-          amount: r.amount,
-          label: r.label,
-          timestamp: Date.now()
-        }));
-        
-        setItems(prev => [...prev, ...newItems]);
+        try {
+          const base64 = event.target?.result as string;
+          const results = await parseReceiptWithAI(base64);
+          
+          if (results.length === 0) {
+            alert("AI không tìm thấy số tiền nào trong ảnh. Anh hãy chụp rõ hơn nhé!");
+          } else {
+            const newItems: BillItem[] = results.map(r => ({
+              id: crypto.randomUUID(),
+              amount: r.amount,
+              label: r.label,
+              timestamp: Date.now()
+            }));
+            setItems(prev => [...prev, ...newItems]);
+          }
+        } catch (innerErr: any) {
+          alert(innerErr.message || "Lỗi khi AI đang xử lý.");
+        } finally {
+          setIsScanning(false);
+          if (fileInputRef.current) fileInputRef.current.value = "";
+        }
+      };
+      reader.onerror = () => {
+        alert("Lỗi khi đọc file ảnh từ điện thoại.");
         setIsScanning(false);
       };
       reader.readAsDataURL(file);
     } catch (err) {
-      alert("Lỗi khi quét ảnh. Vui lòng thử lại!");
+      alert("Đã có lỗi xảy ra. Anh vui lòng thử lại!");
       setIsScanning(false);
     }
   };
@@ -159,7 +162,6 @@ const App: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen max-w-md mx-auto bg-slate-950 shadow-2xl overflow-hidden relative border-x border-slate-800">
-      {/* Header */}
       <header className="p-4 bg-slate-900 border-b border-slate-800 flex justify-between items-center shrink-0 shadow-md z-10">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
@@ -192,14 +194,13 @@ const App: React.FC = () => {
         />
       </header>
 
-      {/* History Area */}
       <main className="flex-1 overflow-y-auto p-4 hide-scrollbar space-y-3 bg-slate-950">
         {items.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-slate-700 space-y-4">
             <div className="w-20 h-20 rounded-full bg-slate-900 flex items-center justify-center border border-slate-800">
               <i className="fa-solid fa-receipt text-3xl"></i>
             </div>
-            <p className="text-sm font-bold uppercase tracking-widest opacity-40">Danh sách món</p>
+            <p className="text-sm font-bold uppercase tracking-widest opacity-40 text-center px-8">Danh sách trống.<br/>Anh chụp bill hoặc nhập tay nhé!</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -217,7 +218,7 @@ const App: React.FC = () => {
                   onClick={() => startEdit(item)}
                 >
                   <span className={`text-[10px] font-bold uppercase tracking-wider ${item.amount < 0 ? 'text-rose-400' : 'text-slate-500'}`}>
-                    #{idx + 1} {item.label} <i className="fa-solid fa-pencil ml-1 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                    #{idx + 1} {item.label} <i className="fa-solid fa-pencil ml-1 opacity-50"></i>
                   </span>
                   <span className={`text-lg font-black tabular-nums ${item.amount < 0 ? 'text-rose-400' : 'text-slate-100'}`}>
                     {formatCurrency(item.amount)}
@@ -236,7 +237,6 @@ const App: React.FC = () => {
         <div ref={historyEndRef} className="h-4" />
       </main>
 
-      {/* Edit Modal */}
       {editingItem && (
         <div className="absolute inset-0 bg-slate-950/80 z-[60] flex items-end justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="w-full bg-slate-900 rounded-3xl p-6 border border-slate-800 shadow-2xl animate-in slide-in-from-bottom-10 duration-300">
@@ -277,7 +277,6 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* Loading Overlay */}
       {isScanning && (
         <div className="absolute inset-0 bg-slate-950/90 z-50 flex flex-col items-center justify-center space-y-4 backdrop-blur-md">
           <div className="relative">
@@ -285,17 +284,16 @@ const App: React.FC = () => {
              <div className="absolute inset-0 w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
           </div>
           <div className="text-center">
-            <p className="text-amber-500 font-black tracking-widest text-lg text-glow">AI SCANNING</p>
-            <p className="text-slate-500 text-xs">Vui lòng chờ trong giây lát...</p>
+            <p className="text-amber-500 font-black tracking-widest text-lg text-glow">ĐANG QUÉT ẢNH...</p>
+            <p className="text-slate-500 text-xs">Vui lòng chờ Đại một xíu nhé...</p>
           </div>
         </div>
       )}
 
-      {/* Totals Section */}
       <div className="bg-slate-900 px-6 py-4 border-t border-slate-800 shadow-[0_-10px_20px_rgba(0,0,0,0.3)]">
         <div className="flex justify-between items-center mb-2">
            <div className="flex flex-col flex-1">
-              <span className="text-slate-500 font-bold text-[10px] uppercase tracking-widest">Biểu thức</span>
+              <span className="text-slate-500 font-bold text-[10px] uppercase tracking-widest">Đang nhập</span>
               <div className="flex items-baseline gap-2">
                 <span className="text-xl font-bold text-slate-400 tabular-nums truncate max-w-[150px]">
                   {displayInput || '0'}
@@ -324,7 +322,6 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      {/* Numpad */}
       <NumberPad 
         onInput={handleInput} 
         onClear={handleClearInput} 
