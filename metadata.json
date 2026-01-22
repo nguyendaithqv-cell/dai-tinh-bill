@@ -1,0 +1,7 @@
+{
+  "name": "Đại tính bill - Máy Tính Quán Nhậu",
+  "description": "Ứng dụng máy tính thông minh dành riêng cho chủ quán nhậu, giúp cộng tiền món nhanh chóng, xem lại lịch sử nhập để tránh nhầm lẫn và tích hợp AI quét hóa đơn.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
